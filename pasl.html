@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student & Patron Portal - Complete System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #1a73e8;
+            --secondary: #0d47a1;
+            --accent: #ff6d00;
+            --student-primary: #28a745;
+            --student-secondary: #1e7e34;
+            --light: #f8f9fa;
+            --dark: #202124;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Auth Pages Styles */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-box {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .auth-logo {
+            margin-bottom: 30px;
+        }
+
+        .auth-logo i {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .auth-logo.student i {
+            color: var(--student-primary);
+        }
+
+        .auth-logo h1 {
+            font-size: 2rem;
+            color: var(--dark);
+        }
+
+        .auth-logo span {
+            color: var(--primary);
+        }
+
+        .auth-logo.student span {
+            color: var(--student-primary);
+        }
+
+        .auth-form .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .auth-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .auth-form .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .auth-form .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .auth-btn.student {
+            background: linear-gradient(135deg, var(--student-primary) 0%, var(--student-secondary) 100%);
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .auth-switch {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .auth-switch a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-switch.student a {
+            color: var(--student-primary);
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .forgot-password a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password.student a {
+            color: var(--student-primary);
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .user-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .user-type-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .user-type-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .user-type-btn.student.active {
+            border-color: var(--student-primary);
+            background: var(--student-primary);
+        }
+
+        /* Dashboard Styles (Hidden until login) */
+        .dashboard-container {
+            display: none;
+        }
+
+        /* Header Styles */
+        header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        .logo.student i {
+            color: var(--student-primary);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            color: var(--dark);
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .logo.student span {
+            color: var(--student-primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+        }
+
+        .user-info.student img {
+            border-color: var(--student-primary);
+        }
+
+        .user-details h3 {
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .user-details p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 25px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            border-radius: 10px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .sidebar-menu.student a:hover, .sidebar-menu.student a.active {
+            background: var(--student-primary);
+        }
+
+        .sidebar-menu i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Page Sections */
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        /* Student Specific Styles */
+        .student-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-left: 5px solid var(--student-primary);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--student-primary);
+        }
+
+        .info-item h4 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .info-item p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .action-btn {
+            background: white;
+            border: none;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .action-btn i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .action-btn.add-student i { color: var(--success); }
+        .action-btn.manage-conduct i { color: var(--warning); }
+        .action-btn.give-permission i { color: var(--primary); }
+        .action-btn.view-reports i { color: var(--danger); }
+        .action-btn.student { color: var(--student-primary); }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-card.blue i { color: var(--primary); }
+        .stat-card.orange i { color: var(--accent); }
+        .stat-card.green i { color: var(--success); }
+        .stat-card.red i { color: var(--danger); }
+        .stat-card.student i { color: var(--student-primary); }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .section-header h2 {
+            color: var(--dark);
+            font-size: 1.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn.student {
+            background: var(--student-primary);
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn.student:hover {
+            background: var(--student-secondary);
+        }
+
+        .btn i {
+            font-size: 0.9rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid #c3e6cb;
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status.present {
+            background: #e8f5e9;
+            color: var(--success);
+        }
+
+        .status.absent {
+            background: #ffebee;
+            color: var(--danger);
+        }
+
+        .status.late {
+            background: #fff8e1;
+            color: var(--warning);
+        }
+
+        .status.permission {
+            background: #e3f2fd;
+            color: var(--primary);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btns button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-punish {
+            background: #ffebee;
+            color: var(--danger);
+        }
+
+        .btn-punish:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-permission {
+            background: #e3f2fd;
+            color: var(--primary);
+        }
+
+        .btn-permission:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Conduct Points */
+        .conduct-points {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 10px;
+            background: #f5f5f5;
+        }
+
+        .conduct-points.high {
+            background: #e8f5e9;
+            color: var(--success);
+        }
+
+        .conduct-points.medium {
+            background: #fff8e1;
+            color: var(--warning);
+        }
+
+        .conduct-points.low {
+            background: #ffebee;
+            color: var(--danger);
+        }
+
+        /* Activity List */
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e3f2fd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .activity-icon.student {
+            background: #e8f5e9;
+            color: var(--student-primary);
+        }
+
+        .activity-content h4 {
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .activity-content p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .activity-time {
+            color: #999;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .stats-grid, .quick-actions {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .action-btns {
+                flex-direction: column;
+            }
+
+            .user-info {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid, .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-box {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Login Selection Page -->
+    <div class="auth-container" id="mainLoginPage">
+        <div class="auth-box">
+            <div class="auth-logo">
+                <i class="fas fa-user-graduate"></i>
+                <h1>School <span>Portal</span></h1>
+                <p>Select your login type</p>
+            </div>
+            
+            <div class="user-type-selector">
+                <button class="user-type-btn active" onclick="selectUserType('patron')">
+                    <i class="fas fa-chalkboard-teacher"></i><br>
+                    Patron Login
+                </button>
+                <button class="user-type-btn student" onclick="selectUserType('student')">
+                    <i class="fas fa-user-graduate"></i><br>
+                    Student Login
+                </button>
+            </div>
+
+            <div id="patronLoginSection">
+                <form class="auth-form" id="patronLoginForm">
+                    <div class="form-group">
+                        <label for="patronUsername"><i class="fas fa-user"></i> Username</label>
+                        <input type="text" id="patronUsername" class="form-control" placeholder="Enter your username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patronPassword"><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="patronPassword" class="form-control" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">
+                        <i class="fas fa-sign-in-alt"></i> Patron Login
+                    </button>
+                </form>
+                <div class="forgot-password">
+                    <a href="#" onclick="showForgotPassword('patron')">Forgot your password?</a>
+                </div>
+                <div class="auth-switch">
+                    Don't have an account? <a href="#" onclick="showSignup('patron')">Sign up here</a>
+                </div>
+            </div>
+
+            
+    <!-- Signup Pages -->
+    <div class="auth-container" id="patronSignupPage" style="display: none;">
+        <div class="auth-box">
+            <div class="auth-logo">
+                <i class="fas fa-user-plus"></i>
+                <h1>Create <span>Patron Account</span></h1>
+                <p>Join as a staff member</p>
+            </div>
+            <form class="auth-form" id="patronSignupForm">
+                <div class="form-group">
+                    <label for="patronSignupName"><i class="fas fa-user"></i> Full Name</label>
+                    <input type="text" id="patronSignupName" class="form-control" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="patronSignupUsername"><i class="fas fa-at"></i> Username</label>
+                    <input type="text" id="patronSignupUsername" class="form-control" placeholder="Choose a username" required>
+                </div>
+                <div class="form-group">
+                    <label for="patronSignupEmail"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="patronSignupEmail" class="form-control" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="patronSignupPassword"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="patronSignupPassword" class="form-control" placeholder="Create a password" required>
+                </div>
+                <div class="form-group">
+                    <label for="patronSignupRole"><i class="fas fa-user-tag"></i> Role</label>
+                    <select id="patronSignupRole" class="form-control" required>
+                        <option value="">Select your role</option>
+                        <option value="Head Patron">Head Patron</option>
+                        <option value="Assistant Patron">Assistant Patron</option>
+                        <option value="Teacher">Teacher</option>
+                    </select>
+                </div>
+                <button type="submit" class="auth-btn">
+                    <i class="fas fa-user-plus"></i> Create Patron Account
+                </button>
+            </form>
+            <div class="auth-switch">
+                Already have an account? <a href="#" onclick="showMainLogin()">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- Forgot Password Pages -->
+    <div class="auth-container" id="patronForgotPasswordPage" style="display: none;">
+        <div class="auth-box">
+            <div class="auth-logo">
+                <i class="fas fa-key"></i>
+                <h1>Reset <span>Password</span></h1>
+                <p>Enter your email to reset your password</p>
+            </div>
+            <form class="auth-form" id="patronForgotPasswordForm">
+                <div class="form-group">
+                    <label for="patronForgotEmail"><i class="fas fa-envelope"></i> Email Address</label>
+                    <input type="email" id="patronForgotEmail" class="form-control" placeholder="Enter your registered email" required>
+                </div>
+                <button type="submit" class="auth-btn">
+                    <i class="fas fa-paper-plane"></i> Send Reset Link
+                </button>
+            </form>
+            <div class="auth-switch">
+                Remember your password? <a href="#" onclick="showMainLogin()">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    
+            </form>
+            <div class="auth-switch student">
+                Remember your password? <a href="#" onclick="showMainLogin()">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Pages -->
+    <div class="auth-container" id="patronResetPasswordPage" style="display: none;">
+        <div class="auth-box">
+            <div class="auth-logo">
+                <i class="fas fa-lock"></i>
+                <h1>New <span>Password</span></h1>
+                <p>Enter your new password</p>
+            </div>
+            <form class="auth-form" id="patronResetPasswordForm">
+                <div class="form-group">
+                    <label for="patronResetPassword"><i class="fas fa-lock"></i> New Password</label>
+                    <input type="password" id="patronResetPassword" class="form-control" placeholder="Enter new password" required>
+                </div>
+                <div class="form-group">
+                    <label for="patronConfirmPassword"><i class="fas fa-lock"></i> Confirm Password</label>
+                    <input type="password" id="patronConfirmPassword" class="form-control" placeholder="Confirm new password" required>
+                </div>
+                <button type="submit" class="auth-btn">
+                    <i class="fas fa-save"></i> Reset Password
+                </button>
+            </form>
+            <div class="auth-switch">
+                <a href="#" onclick="showMainLogin()">Back to Login</a>
+            </div>
+        </div>
+    </div>
+
+   
+
+    <!-- Patron Dashboard -->
+    <div class="dashboard-container" id="patronDashboardPage">
+        <!-- Same patron dashboard content as before -->
+        <div class="container">
+            <header>
+                <div class="logo">
+                    <i class="fas fa-user-graduate"></i>
+                    <h1>Patron <span>Portal</span></h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-details">
+                        <h3 id="patronDisplayName">Welcome, User</h3>
+                        <p id="patronDisplayRole">Head Patron</p>
+                    </div>
+                    <img id="patronAvatar" src="https://ui-avatars.com/api/?name=User&background=1a73e8&color=fff" alt="User Avatar">
+                    <button class="logout-btn" onclick="logout('patron')">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard">
+                <aside class="sidebar">
+                    <ul class="sidebar-menu">
+                        <li><a href="#" class="active" onclick="showPage('dashboard', 'patron')"><i class="fas fa-home"></i> Dashboard</a></li>
+                        
+                        <li><a href="#" onclick="showPage('attendance', 'patron')"><i class="fas fa-clipboard-check"></i> Attendance</a></li>
+                        <li><a href="#" onclick="showPage('performance', 'patron')"><i class="fas fa-chart-bar"></i> Performance</a></li>
+                        <li><a href="#" onclick="showPage('schedule', 'patron')"><i class="fas fa-calendar-alt"></i> Schedule</a></li>
+                        <li><a href="#" onclick="showPage('reports', 'patron')"><i class="fas fa-exclamation-circle"></i> Issues & Reports</a></li>
+                        <li><a href="#" onclick="showPage('settings', 'patron')"><i class="fas fa-cog"></i> Settings</a></li>
+                    </ul>
+                </aside>
+
+                <main class="main-content">
+                    <!-- Patron Dashboard Content (same as before) -->
+                    <div id="patron-page-dashboard" class="page-section active">
+                        <!-- Quick Actions -->
+                        <div class="quick-actions">
+                            <button class="action-btn add-student" onclick="openModal('addStudentModal')">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Add New Student</span>
+                            </button>
+                            <button class="action-btn manage-conduct" onclick="openModal('manageConductModal')">
+                                <i class="fas fa-balance-scale"></i>
+                                <span>Manage Conduct</span>
+                            </button>
+                            <button class="action-btn give-permission" onclick="openModal('givePermissionModal')">
+                                <i class="fas fa-door-open"></i>
+                                <span>Give Permission</span>
+                            </button>
+                            <button class="action-btn view-reports" onclick="showPage('reports', 'patron')">
+                                <i class="fas fa-file-alt"></i>
+                                <span>View Reports</span>
+                            </button>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-card blue">
+                                <i class="fas fa-users"></i>
+                                <h3>142</h3>
+                                <p>Total Students</p>
+                            </div>
+                            <div class="stat-card orange">
+                                <i class="fas fa-user-check"></i>
+                                <h3>128</h3>
+                                <p>Present Today</p>
+                            </div>
+                            <div class="stat-card green">
+                                <i class="fas fa-trophy"></i>
+                                <h3>42</h3>
+                                <p>High Performers</p>
+                            </div>
+                            <div class="stat-card red">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <h3>7</h3>
+                                <p>Issues Reported</p>
+                            </div>
+                        </div>
+
+                        <div class="content-section">
+                            <div class="section-header">
+                                <h2>Student Management</h2>
+                                <button class="btn" onclick="openModal('addStudentModal')">
+                                    <i class="fas fa-user-plus"></i> Add Student
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Student ID</th>
+                                            <th>Name</th>
+                                            <th>Class</th>
+                                            <th>Conduct Points</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>BS2024001</td>
+                                            <td>Michael Rodriguez</td>
+                                            <td>Grade 10-A</td>
+                                            <td><span class="conduct-points high">85/100</span></td>
+                                            <td><span class="status present">Present</span></td>
+                                            <td class="action-btns">
+                                                <button class="btn-punish" onclick="punishStudent('BS2024001', 'Michael Rodriguez')">
+                                                    <i class="fas fa-minus-circle"></i> Punish
+                                                </button>
+                                                <button class="btn-permission" onclick="givePermission('BS2024001', 'Michael Rodriguez')">
+                                                    <i class="fas fa-door-open"></i> Permission
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>BS2024002</td>
+                                            <td>James Wilson</td>
+                                            <td>Grade 11-B</td>
+                                            <td><span class="conduct-points medium">65/100</span></td>
+                                            <td><span class="status present">Present</span></td>
+                                            <td class="action-btns">
+                                                <button class="btn-punish" onclick="punishStudent('BS2024002', 'James Wilson')">
+                                                    <i class="fas fa-minus-circle"></i> Punish
+                                                </button>
+                                                <button class="btn-permission" onclick="givePermission('BS2024002', 'James Wilson')">
+                                                    <i class="fas fa-door-open"></i> Permission
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="content-section">
+                            <div class="section-header">
+                                <h2>Recent Activities</h2>
+                                <a href="#" class="btn" onclick="showPage('reports', 'patron')"><i class="fas fa-history"></i> View All</a>
+                            </div>
+                            <ul class="activity-list">
+                                <li class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas fa-user-check"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <h4>Login Activity</h4>
+                                        <p id="patronLoginActivityMessage">You logged in successfully</p>
+                                        <div class="activity-time" id="patronLoginTime"></div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Other patron pages... -->
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Dashboard -->
+    <div class="dashboard-container" id="studentDashboardPage">
+        <div class="container">
+            <header>
+                <div class="logo student">
+                    <i class="fas fa-user-graduate"></i>
+                    <h1>Student <span>Portal</span></h1>
+                </div>
+                <div class="user-info student">
+                    <div class="user-details">
+                        <h3 id="studentDisplayName">Welcome, Student</h3>
+                        <p id="studentDisplayClass">Grade 10-A</p>
+                    </div>
+                    <img id="studentAvatar" src="https://ui-avatars.com/api/?name=Student&background=28a745&color=fff" alt="Student Avatar">
+                    <button class="logout-btn" onclick="logout('student')">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard">
+                <aside class="sidebar">
+                    <ul class="sidebar-menu student">
+                        <li><a href="#" class="active" onclick="showPage('dashboard', 'student')"><i class="fas fa-home"></i> Dashboard</a></li>
+                        <li><a href="#" onclick="showPage('profile', 'student')"><i class="fas fa-user"></i> My Profile</a></li>
+                        <li><a href="#" onclick="showPage('attendance', 'student')"><i class="fas fa-clipboard-check"></i> My Attendance</a></li>
+                        <li><a href="#" onclick="showPage('grades', 'student')"><i class="fas fa-chart-bar"></i> My Grades</a></li>
+                        <li><a href="#" onclick="showPage('schedule', 'student')"><i class="fas fa-calendar-alt"></i> My Schedule</a></li>
+                        <li><a href="#" onclick="showPage('conduct', 'student')"><i class="fas fa-balance-scale"></i> My Conduct</a></li>
+                        <li><a href="#" onclick="showPage('requests', 'student')"><i class="fas fa-envelope"></i> My Requests</a></li>
+                    </ul>
+                </aside>
+
+                <main class="main-content">
+                    <!-- Student Dashboard Page -->
+                    <div id="student-page-dashboard" class="page-section active">
+                        <div class="student-card">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <h4>Student ID</h4>
+                                    <p id="studentIdDisplay">BS2024001</p>
+                                </div>
+                                <div class="info-item">
+                                    <h4>Class</h4>
+                                    <p id="studentClassDisplay">Grade 10-A</p>
+                                </div>
+                                <div class="info-item">
+                                    <h4>Conduct Points</h4>
+                                    <p><span class="conduct-points high">85/100</span></p>
+                                </div>
+                                <div class="info-item">
+                                    <h4>Attendance</h4>
+                                    <p>94%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="quick-actions">
+                            <button class="action-btn student" onclick="showPage('attendance', 'student')">
+                                <i class="fas fa-clipboard-check"></i>
+                                <span>View Attendance</span>
+                            </button>
+                            <button class="action-btn student" onclick="showPage('grades', 'student')">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Check Grades</span>
+                            </button>
+                            <button class="action-btn student" onclick="showPage('schedule', 'student')">
+                                <i class="fas fa-calendar"></i>
+                                <span>My Schedule</span>
+                            </button>
+                            <button class="action-btn student" onclick="openModal('studentRequestModal')">
+                                <i class="fas fa-envelope"></i>
+                                <span>Make Request</span>
+                            </button>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-card student">
+                                <i class="fas fa-book"></i>
+                                <h3>6</h3>
+                                <p>Current Subjects</p>
+                            </div>
+                            <div class="stat-card blue">
+                                <i class="fas fa-user-check"></i>
+                                <h3>94%</h3>
+                                <p>Attendance Rate</p>
+                            </div>
+                            <div class="stat-card green">
+                                <i class="fas fa-trophy"></i>
+                                <h3>85%</h3>
+                                <p>Average Grade</p>
+                            </div>
+                            <div class="stat-card orange">
+                                <i class="fas fa-star"></i>
+                                <h3>85</h3>
+                                <p>Conduct Points</p>
+                            </div>
+                        </div>
+
+                        <div class="content-section">
+                            <div class="section-header">
+                                <h2>Today's Schedule</h2>
+                                <button class="btn student" onclick="showPage('schedule', 'student')">
+                                    <i class="fas fa-calendar"></i> Full Schedule
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Subject</th>
+                                            <th>Teacher</th>
+                                            <th>Room</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>08:00 - 09:00</td>
+                                            <td>Mathematics</td>
+                                            <td>Mr. Johnson</td>
+                                            <td>Room 101</td>
+                                        </tr>
+                                        <tr>
+                                            <td>09:00 - 10:00</td>
+                                            <td>Science</td>
+                                            <td>Dr. Smith</td>
+                                            <td>Lab 201</td>
+                                        </tr>
+                                        <tr>
+                                            <td>10:30 - 11:30</td>
+                                            <td>English</td>
+                                            <td>Mrs. Wilson</td>
+                                            <td>Room 102</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="content-section">
+                            <div class="section-header">
+                                <h2>Recent Activities</h2>
+                                <a href="#" class="btn student"><i class="fas fa-history"></i> View All</a>
+                            </div>
+                            <ul class="activity-list">
+                                <li class="activity-item">
+                                    <div class="activity-icon student">
+                                        <i class="fas fa-user-check"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <h4>Login Activity</h4>
+                                        <p id="studentLoginActivityMessage">You logged in successfully</p>
+                                        <div class="activity-time" id="studentLoginTime"></div>
+                                    </div>
+                                </li>
+                                <li class="activity-item">
+                                    <div class="activity-icon student">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <h4>Assignment Submitted</h4>
+                                        <p>Mathematics assignment submitted successfully</p>
+                                        <div class="activity-time">Today, 09:15 AM</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Other student pages can be added similarly -->
+                    <div id="student-page-profile" class="page-section">
+                        <div class="content-section">
+                            <div class="section-header">
+                                <h2>My Profile</h2>
+                            </div>
+                            <p>Student profile content goes here...</p>
+                        </div>
+                    </div>
+
+                    <div id="student-page-attendance" class="page-section">
+                        <div class="content-section">
+                            <div class="section-header">
+                                <h2>My Attendance</h2>
+                            </div>
+                            <p>Student attendance content goes here...</p>
+                        </div>
+                    </div>
+
+                    <div id="student-page-grades" class="page-section">
+                        <div class="content-section">
+                            <div class="section-header">
+                                <h2>My Grades</h2>
+                            </div>
+                            <p>Student grades content goes here...</p>
+                        </div>
+                    </div>
+
+                    <div id="student-page-schedule" class="page-section">
+                        <div class="content-section">
+                            <div class="section-header">
+                                <h2>My Schedule</h2>
+                            </div>
+                            <p>Student schedule content goes here...</p>
+                        </div>
+                    </div>
+
+                    <div id="student-page-conduct" class="page-section">
+                        <div class="content-section">
+                            <div class="section-header">
+                                <h2>My Conduct</h2>
+                            </div>
+                            <p>Student conduct content goes here...</p>
+                        </div>
+                    </div>
+
+                    <div id="student-page-requests" class="page-section">
+                        <div class="content-section">
+                            <div class="section-header">
+                                <h2>My Requests</h2>
+                            </div>
+                            <p>Student requests content goes here...</p>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Request Modal -->
+    <div id="studentRequestModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Submit Request</h2>
+                <button class="close-modal" onclick="closeModal('studentRequestModal')">&times;</button>
+            </div>
+            <form id="studentRequestForm">
+                <div class="form-group">
+                    <label for="requestType">Request Type</label>
+                    <select id="requestType" class="form-control" required>
+                        <option value="">Select request type</option>
+                        <option value="permission">Permission Request</option>
+                        <option value="leave">Leave Application</option>
+                        <option value="query">General Query</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="requestDetails">Request Details</label>
+                    <textarea id="requestDetails" class="form-control" rows="4" placeholder="Describe your request..." required></textarea>
+                </div>
+                <button type="submit" class="btn student" style="width: 100%;">
+                    <i class="fas fa-paper-plane"></i> Submit Request
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Existing modals for patron... -->
+
+    <script>
+        // User data storage
+        let patronUsers = JSON.parse(localStorage.getItem('patronUsers')) || {};
+    
+        
+        let currentPatronUser = null;
+    
+        let resetEmail = '';
+        let currentUserType = 'patron';
+
+        // User Type Selection
+        function selectUserType(type) {
+            currentUserType = type;
+            document.querySelectorAll('.user-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (type === 'patron') {
+                document.getElementById('patronLoginSection').style.display = 'block';
+        
+            } else {
+                document.getElementById('patronLoginSection').style.display = 'none';
+            
+            }
+        }
+
+        // Navigation Functions
+        function showMainLogin() {
+            document.querySelectorAll('.auth-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            document.getElementById('mainLoginPage').style.display = 'flex';
+        }
+
+        function showSignup(type) {
+            document.querySelectorAll('.auth-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            if (type === 'patron') {
+                document.getElementById('patronSignupPage').style.display = 'flex';
+            } else {
+                
+            }
+        }
+
+        function showForgotPassword(type) {
+            document.querySelectorAll('.auth-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            if (type === 'patron') {
+                document.getElementById('patronForgotPasswordPage').style.display = 'flex';
+            } else {
+            
+            }
+        }
+
+        // Save users to localStorage
+        function saveUsers() {
+            localStorage.setItem('patronUsers', JSON.stringify(patronUsers));
+            
+        }
+
+        // Patron Signup
+        document.getElementById('patronSignupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('patronSignupName').value;
+            const username = document.getElementById('patronSignupUsername').value;
+            const email = document.getElementById('patronSignupEmail').value;
+            const password = document.getElementById('patronSignupPassword').value;
+            const role = document.getElementById('patronSignupRole').value;
+
+            if (patronUsers[username]) {
+                alert('Username already exists! Please choose a different username.');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long.');
+                return;
+            }
+
+            // Create new patron user
+            patronUsers[username] = {
+                password: password,
+                name: name,
+                role: role,
+                email: email,
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a73e8&color=fff`
+            };
+
+            saveUsers();
+            alert('Patron account created successfully! You can now login.');
+            showMainLogin();
+            this.reset();
+        });
+
+       
+
+        // Patron Login
+        document.getElementById('patronLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('patronUsername').value;
+            const password = document.getElementById('patronPassword').value;
+
+            if (patronUsers[username] && patronUsers[username].password === password) {
+                currentPatronUser = patronUsers[username];
+                patronLoginSuccess();
+            } else {
+                alert('Invalid username or password! Please try again.');
+            }
+        });
+
+       
+
+        function patronLoginSuccess() {
+            document.getElementById('mainLoginPage').style.display = 'none';
+            document.getElementById('patronDashboardPage').style.display = 'block';
+
+            document.getElementById('patronDisplayName').textContent = `Welcome, ${currentPatronUser.name}`;
+            document.getElementById('patronDisplayRole').textContent = currentPatronUser.role;
+            document.getElementById('patronAvatar').src = currentPatronUser.avatar;
+
+            const now = new Date();
+            document.getElementById('patronLoginActivityMessage').textContent = `${currentPatronUser.name} logged in successfully`;
+            document.getElementById('patronLoginTime').textContent = `Today, ${now.toLocaleTimeString()}`;
+        }
+
+       
+        
+        // Page Navigation
+        function showPage(pageName, userType) {
+            if (userType === 'patron') {
+                document.querySelectorAll('#patronDashboardPage .page-section').forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.getElementById(`patron-page-${pageName}`).classList.add('active');
+                
+                document.querySelectorAll('#patronDashboardPage .sidebar-menu a').forEach(link => {
+                    link.classList.remove('active');
+                });
+                event.target.classList.add('active');
+            } else {
+               
+                
+            }
+        }
+
+        function logout(userType) {
+            if (userType === 'patron') {
+                document.getElementById('patronDashboardPage').style.display = 'none';
+                currentPatronUser = null;
+            } else {
+               
+            }
+            showMainLogin();
+        }
+
+     
+    
+
+        // Modal Functions (same as before)
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize sidebar menus
+            const patronMenuItems = document.querySelectorAll('#patronDashboardPage .sidebar-menu a');
+            
+            
+            patronMenuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    patronMenuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+           
+                });
+            
+    
+    </script>
+</body>
+</html>

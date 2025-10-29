@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchoolFeeds Pro - Intelligent Feeding Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .logo {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 2px solid var(--light);
+            margin-bottom: 20px;
+        }
+        .logo h2 {
+            font-size: 1.8em;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        .logo p {
+            color: var(--secondary);
+            font-size: 0.9em;
+        }
+        .nav-links {
+            list-style: none;
+            padding: 0 15px;
+        }
+        .nav-links li {
+            margin: 8px 0;
+        }
+        .nav-links li a {
+            color: var(--secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .nav-links li a:hover, .nav-links li a.active {
+            background: linear-gradient(135deg, var(--primary), #2980b9);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        .nav-links li a i {
+            margin-right: 15px;
+            font-size: 1.2em;
+            width: 25px;
+            text-align: center;
+        }
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            background: rgba(248, 249, 250, 0.9);
+            overflow-y: auto;
+        }
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid var(--primary);
+        }
+        .header h1 {
+            color: var(--secondary);
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        /* Content Sections */
+        .content-section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .content-section.active {
+            display: block;
+        }
+        .section-title {
+            color: var(--secondary);
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        /* Dashboard Styles */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), #2980b9);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+        }
+        .stat-card:hover::before {
+            transform: rotate(45deg) translate(50px, 50px);
+        }
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .stat-card i {
+            font-size: 2em;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+        }
+        .chart-container h3 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .data-table th {
+            background: linear-gradient(135deg, var(--primary), #2980b9);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+        /* Form Styles */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            outline: none;
+        }
+        .btn {
+            background: var(--primary);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn i {
+            font-size: 1.1em;
+        }
+        .btn-danger {
+            background: var(--danger);
+        }
+        .btn-success {
+            background: var(--success);
+        }
+        .btn-warning {
+            background: var(--warning);
+        }
+        .btn-info {
+            background: var(--info);
+        }
+        /* Badges */
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .badge-success {
+            background: var(--success);
+            color: white;
+        }
+        .badge-warning {
+            background: var(--warning);
+            color: white;
+        }
+        .badge-danger {
+            background: var(--danger);
+            color: white;
+        }
+        .badge-info {
+            background: var(--info);
+            color: white;
+        }
+        /* Progress Bars */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress {
+            height: 100%;
+            background: linear-gradient(135deg, var(--success), #229954);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        .alert-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--warning);
+        }
+        .meal-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--success);
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        .tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary);
+        }
+        .feature-card h3 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .calendar-day {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .calendar-day:hover {
+            border-color: var(--primary);
+            background: #f8f9fa;
+        }
+        .calendar-day.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: slideUp 0.4s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s ease;
+        }
+        .close:hover {
+            color: var(--danger);
+        }
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 20px 30px;
+            background: var(--success);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 3000;
+            animation: slideInRight 0.5s ease;
+            max-width: 400px;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .notification.error {
+            background: var(--danger);
+        }
+        .notification.warning {
+            background: var(--warning);
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="notification" id="notification"></div>
+    
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="SchoolFeedingSystem.closeModal('studentModal')">&times;</span>
+            <h3 style="margin-bottom: 25px;">🎓 Add New Student</h3>
+            <form id="studentForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Student Name</label>
+                        <input type="text" id="studentName" required placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card"></i> Student ID</label>
+                        <input type="text" id="studentId" required placeholder="Auto-generated" disabled>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i> Grade</label>
+                        <select id="studentGrade" required>
+                            <option value="">Select Grade</option>
+                            <option value="1">Grade 1</option>
+                            <option value="2">Grade 2</option>
+                            <option value="3">Grade 3</option>
+                            <option value="4">Grade 4</option>
+                            <option value="5">Grade 5</option>
+                            <option value="6">Grade 6</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-users"></i> Class</label>
+                        <input type="text" id="studentClass" required placeholder="e.g., 5A">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-heart"></i> Dietary Restrictions</label>
+                        <select id="dietaryRestrictions" multiple style="height: 120px;">
+                            <option value="None">None</option>
+                            <option value="Vegetarian">Vegetarian</option>
+                            <option value="Peanut Allergy">Peanut Allergy</option>
+                            <option value="Lactose Intolerant">Lactose Intolerant</option>
+                            <option value="Gluten Free">Gluten Free</option>
+                            <option value="Diabetic">Diabetic</option>
+                            <option value="Halal">Halal</option>
+                            <option value="Kosher">Kosher</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-utensils"></i> Meal Plan</label>
+                        <select id="mealPlan" required>
+                            <option value="Standard">Standard</option>
+                            <option value="Special">Special Diet</option>
+                            <option value="Premium">Premium</option>
+                        </select>
+                        <label style="margin-top: 15px;"><i class="fas fa-calendar"></i> Enrollment Date</label>
+                        <input type="date" id="enrollmentDate" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-sticky-note"></i> Additional Notes</label>
+                    <textarea id="studentNotes" rows="3" placeholder="Any additional information..."></textarea>
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 25px;">
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Student</button>
+                    <button type="button" class="btn" onclick="SchoolFeedingSystem.closeModal('studentModal')"><i class="fas fa-times"></i> Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="menuModal" class="modal">        <div class="modal-content">            <span class="close" onclick="SchoolFeedingSystem.closeModal('menuModal')">&times;</span>            <h3 style="margin-bottom: 25px;">🍽️ Plan New Menu Item</h3>            <form id="menuForm">                <div class="form-row">                    <div class="form-group">                        <label><i class="fas fa-calendar-day"></i> Day of Week</label>                        <select id="menuDay" required></select>                    </div>                    <div class="form-group">                        <label><i class="fas fa-dollar-sign"></i> Estimated Cost ($)</label>                        <input type="number" id="menuCost" step="0.01" required>                    </div>                </div>                <div class="form-group">                    <label><i class="fas fa-drumstick-bite"></i> Main Dish</label>                    <input type="text" id="menuMainDish" required>                </div>                <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Menu</button>            </form>        </div>    </div>
+    
+    <div id="addItemModal" class="modal">        <div class="modal-content">            <span class="close" onclick="SchoolFeedingSystem.closeModal('addItemModal')">&times;</span>            <h3 style="margin-bottom: 25px;">➕ Add New Inventory Item</h3>            <form id="addItemForm">                <div class="form-group">                    <label><i class="fas fa-box"></i> Item Name</label>                    <input type="text" id="newItemName" required>                </div>                <div class="form-row">                    <div class="form-group">                        <label><i class="fas fa-tags"></i> Category</label>                        <input type="text" id="newItemCategory" required>                    </div>                    <div class="form-group">                        <label><i class="fas fa-ruler-vertical"></i> Unit of Measure (e.g., Kg, Units)</label>                        <input type="text" id="newItemUnit" required value="Units">                    </div>                </div>                <div class="form-row">                    <div class="form-group">                        <label><i class="fas fa-minus-circle"></i> Minimum Stock Level</label>                        <input type="number" id="newItemMinStock" min="1" required>                    </div>                    <div class="form-group">                        <label><i class="fas fa-coins"></i> Avg Cost Per Unit ($)</label>                        <input type="number" id="newItemCost" step="0.01" min="0.01" required>                    </div>                </div>                <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Item</button>            </form>        </div>    </div>
+
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="logo">
+                <h2>🍎 SchoolFeeds Pro</h2>
+                <p>Intelligent Feeding Management</p>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#dashboard" class="nav-link active" data-target="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="#students" class="nav-link" data-target="students"><i class="fas fa-user-graduate"></i> Student Management</a></li>
+                <li><a href="#menu" class="nav-link" data-target="menu"><i class="fas fa-utensils"></i> Menu Planner</a></li>
+                <li><a href="#orders" class="nav-link" data-target="orders"><i class="fas fa-shopping-cart"></i> Order System</a></li>
+                <li><a href="#inventory" class="nav-link" data-target="inventory"><i class="fas fa-boxes"></i> Inventory</a></li>
+                <li><a href="#reports" class="nav-link" data-target="reports"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+                <li><a href="#parentPortal" class="nav-link" data-target="parentPortal"><i class="fas fa-users"></i> Parent Portal</a></li>
+                <li><a href="#settings" class="nav-link" data-target="settings"><i class="fas fa-cogs"></i> Settings</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>School Feeding Management System</h1>
+                <div class="user-info">
+                    <div class="user-avatar">AD</div>
+                    <div>
+                        <div style="font-weight: 600;">Admin User</div>
+                        <div style="font-size: 0.9em; color: #666;">Last login: Today, 09:42 AM</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dashboard" class="content-section active">
+                <h2 class="section-title">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard Command Center
+                    <span style="font-size: 0.8em; color: #666;">Last refreshed: <span id="lastUpdated"></span></span>
+                </h2>
+
+                <div class="chart-container" style="border: 3px solid var(--danger); background-color: #fef7f7; margin-bottom: 30px;">
+                    <h3 style="color: var(--danger); display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-exclamation-triangle"></i> CRITICAL ALERTS
+                    </h3>
+                    <div id="recentActivity">
+                        <div class="alert-item">
+                            <div>
+                                <strong>✅ Daily Service complete (856 meals served)</strong>
+                                <div style="color: #666; font-size: 0.9em;">Today, 1:05 PM</div>
+                            </div>
+                            <span class="badge badge-success">Log</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: 15px; font-size: 0.9em; color: #777;">**Action Required:** Review low stock items and pending orders.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="SchoolFeedingSystem.showStudentAnalytics()">
+                        <i class="fas fa-user-graduate"></i>
+                        <h3 id="totalStudents">1,247</h3>
+                        <p>Total Students</p>
+                        <div class="progress-bar"><div class="progress" id="progressStudents" style="width: 85%"></div></div>
+                        <small>85% Active this month</small>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #e74c3c, #c0392b);" onclick="SchoolFeedingSystem.showMealAnalytics()">
+                        <i class="fas fa-utensils"></i>
+                        <h3 id="mealsToday">856</h3>
+                        <p>Meals Served Today</p>
+                        <div class="progress-bar"><div class="progress" id="progressMeals" style="width: 72%; background: linear-gradient(135deg, #f0544c, #e74c3c);"></div></div>
+                        <small id="mealsServedNote">72% of 1200 capacity</small>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #27ae60, #229954);" onclick="SchoolFeedingSystem.showParticipationAnalytics()">
+                        <i class="fas fa-chart-line"></i>
+                        <h3 id="participationRate">94%</h3>
+                        <p>Participation Rate</p>
+                        <div class="progress-bar"><div class="progress" id="progressParticipation" style="width: 94%; background: linear-gradient(135deg, #2ecc71, #27ae60);"></div></div>
+                        <small id="participationNote">+2% from last week</small>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f39c12, #e67e22);" onclick="SchoolFeedingSystem.showBudgetAnalytics()">
+                        <i class="fas fa-boxes"></i>
+                        <h3 id="invLowStockAlertCard">5</h3>
+                        <p>Critical Inventory Alerts</p>
+                        <div class="progress-bar"><div class="progress" id="progressLowStock" style="width: 15%; background: linear-gradient(135deg, #e67e22, #f39c12);"></div></div>
+                        <small id="lowStockNote">Items below minimum stock</small>
+                    </div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-container">
+                        <h3>📈 Weekly Meal Consumption Trend</h3>
+                        <canvas id="consumptionChart" height="150"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>🍽️ Meal Distribution</h3>
+                        <canvas id="mealDistributionChart" height="150"></canvas>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h3><i class="fas fa-sync"></i> Quick Actions Center</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                        <button class="btn btn-success" onclick="SchoolFeedingSystem.quickAction('newMenu')">
+                            <i class="fas fa-plus"></i> Create New Menu
+                        </button>
+                        <button class="btn btn-info" onclick="SchoolFeedingSystem.quickAction('generateReport')">
+                            <i class="fas fa-file-alt"></i> Generate Today's Report
+                        </button>
+                        <button class="btn btn-warning" onclick="SchoolFeedingSystem.quickAction('inventoryCheck')">
+                            <i class="fas fa-boxes"></i> Review Inventory Needs
+                        </button>
+                        <button class="btn btn-primary" onclick="SchoolFeedingSystem.openStudentModal()">
+                            <i class="fas fa-user-plus"></i> Enroll Student
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="students" class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-user-graduate"></i> Student Management
+                    <button class="btn btn-success" onclick="SchoolFeedingSystem.openStudentModal()">
+                        <i class="fas fa-user-plus"></i> Add New Student
+                    </button>
+                </h2>                                
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchStudents" placeholder="Search students by name, grade, or class..."
+                            onkeyup="SchoolFeedingSystem.searchStudents()" style="width: 100%;">
+                </div>
+                <div class="tabs">
+                    <div class="tab active" onclick="SchoolFeedingSystem.switchTab('allStudents')">All Students</div>
+                    <div class="tab" onclick="SchoolFeedingSystem.switchTab('activeStudents')">Active</div>
+                    <div class="tab" onclick="SchoolFeedingSystem.switchTab('specialDiet')">Special Diet</div>
+                    <div class="tab" onclick="SchoolFeedingSystem.switchTab('newEnrollments')">New Enrollments</div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Grade</th>
+                                <th>Class</th>
+                                <th>Dietary Restrictions</th>
+                                <th>Meal Plan</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTable">
+                            <tr>
+                                <td>S001</td>
+                                <td>John Smith</td>
+                                <td>5</td>
+                                <td>5A</td>
+                                <td><span class="badge badge-warning">Peanut Allergy</span></td>
+                                <td>Standard</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>                                    
+                                    <button class="btn btn-info" style="padding: 5px 10px; font-size: 12px;"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>S002</td>
+                                <td>Sarah Johnson</td>
+                                <td>4</td>
+                                <td>4B</td>
+                                <td>None</td>
+                                <td>Special</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>                                    
+                                    <button class="btn btn-info" style="padding: 5px 10px; font-size: 12px;"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="menu" class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-utensils"></i> Menu Planner
+                    <button class="btn btn-success" onclick="SchoolFeedingSystem.openMenuModal()">
+                        <i class="fas fa-plus"></i> Plan New Meal
+                    </button>
+                </h2>
+                <div class="feature-card">
+                    <h3><i class="fas fa-calendar-alt"></i> Weekly Meal Calendar</h3>
+                    <div class="calendar">
+                        <div class="calendar-day active">Mon</div>
+                        <div class="calendar-day">Tue</div>
+                        <div class="calendar-day">Wed</div>
+                        <div class="calendar-day">Thu</div>
+                        <div class="calendar-day">Fri</div>
+                        <div class="calendar-day">Sat</div>
+                        <div class="calendar-day">Sun</div>
+                    </div>
+                    <div style="margin-top: 25px;">
+                        <h4>Menu for Monday, October 28</h4>
+                        <div class="meal-card">
+                            <strong>Main Dish:</strong> Chicken Curry and Rice
+                            <p style="font-size: 0.9em; margin-top: 5px;">
+                                <span class="badge badge-info">Cost: $1.50</span>
+                                <span class="badge badge-success">Score: 90%</span>
+                            </p>
+                        </div>
+                        <div class="meal-card">
+                            <strong>Side:</strong> Steamed Vegetables
+                            <p style="font-size: 0.9em; margin-top: 5px;">
+                                <span class="badge badge-info">Ingr: 5</span>
+                                <span class="badge badge-success">Prep Time: 15min</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="orders" class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-shopping-cart"></i> Daily Meal Service Tracker
+                    <button class="btn btn-info" onclick="SchoolFeedingSystem.openOrderSummaryModal()">
+                        <i class="fas fa-chart-pie"></i> View Daily Summary
+                    </button>
+                </h2>
+                <div class="stats-grid">
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--info), #0f6674);">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3 id="ordersTotal">1000</h3>
+                        <p>Total Orders Today</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--success), #229954);">
+                        <i class="fas fa-check-circle"></i>
+                        <h3 id="ordersServed">856</h3>
+                        <p>Meals Served</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--danger), #c0392b);">
+                        <i class="fas fa-minus-circle"></i>
+                        <h3 id="ordersPending">144</h3>
+                        <p>Pending Orders</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--warning), #e67e22);">
+                        <i class="fas fa-trash-alt"></i>
+                        <h3 id="ordersWaste">5%</h3>
+                        <p>Est. Meal Waste</p>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Student Name</th>
+                                <th>Grade/Class</th>
+                                <th>Meal Plan</th>
+                                <th>Time Served</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTable">
+                            <tr data-status="served">
+                                <td>ORD001</td>
+                                <td>John Smith</td>
+                                <td>5 / 5A</td>
+                                <td>Standard</td>
+                                <td>12:35 PM</td>
+                                <td><span class="badge badge-success">Served</span></td>
+                                <td><button class="btn" disabled style="padding: 5px 10px; font-size: 12px; background: #7f8c8d;"><i class="fas fa-check"></i> Served</button></td>
+                            </tr>
+                            <tr data-status="pending">
+                                <td>ORD003</td>
+                                <td>Alice Brown</td>
+                                <td>3 / 3C</td>
+                                <td>Special Diet</td>
+                                <td>-</td>
+                                <td><span class="badge badge-warning">Pending</span></td>
+                                <td><button class="btn btn-success serve-btn" style="padding: 5px 10px; font-size: 12px;" onclick="SchoolFeedingSystem.markOrderServed(this, 'ORD003')"><i class="fas fa-check"></i> Mark Served</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="inventory" class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-boxes"></i> Inventory Management
+                    <button class="btn btn-warning" onclick="SchoolFeedingSystem.openAddItemModal()">
+                        <i class="fas fa-plus"></i> Add New Item
+                    </button>
+                </h2>
+                <div class="stats-grid">
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--success), #229954);">
+                        <i class="fas fa-cubes"></i>
+                        <h3 id="invTotalItems">25</h3>
+                        <p>Total Item Types</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--danger), #c0392b);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3 id="invLowStock">5</h3>
+                        <p>Low/Out of Stock</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--info), #0f6674);">
+                        <i class="fas fa-truck-loading"></i>
+                        <h3 id="invOngoingStock">150</h3>
+                        <p>Upcoming Stock (Units)</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--warning), #e67e22);">
+                        <i class="fas fa-redo-alt"></i>
+                        <h3 id="invReorderNeeded">3</h3>
+                        <p>Reorder Needed</p>
+                    </div>
+                </div>
+                <div class="tabs">
+                    <div class="tab active" onclick="SchoolFeedingSystem.switchInvTab('current')"><i class="fas fa-warehouse"></i> Current Stock</div>
+                    <div class="tab" onclick="SchoolFeedingSystem.switchInvTab('transactions')"><i class="fas fa-history"></i> Transaction Log</div>
+                    <div class="tab" onclick="SchoolFeedingSystem.switchInvTab('reorder')"><i class="fas fa-cart-arrow-down"></i> Reorder List</div>
+                </div>
+                <div id="currentInvTab" class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Category</th>
+                                <th>Current Stock</th>
+                                <th>Min Stock</th>
+                                <th>Status</th>
+                                <th>Qty In (Rec.)</th>
+                                <th>Qty Out (Use)</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTable">
+                            <tr data-stock="25" data-min-stock="30" data-cost-per-unit="0.50" data-item-name="Milk" data-unit="Units">
+                                <td>Milk</td>
+                                <td>Dairy</td>
+                                <td class="current-stock">25 Units</td>
+                                <td>30 Units</td>
+                                <td><span class="badge badge-warning">Low Stock</span></td>
+                                <td><input type="number" min="0" class="input-qty qty-in" value="0"></td>
+                                <td><input type="number" min="0" class="input-qty qty-out" value="0"></td>
+                                <td><button class="btn btn-primary apply-stock-btn" style="padding: 5px 10px; font-size: 12px;" onclick="SchoolFeedingSystem.applyStockAdjustment(this)"><i class="fas fa-sync-alt"></i> Update</button></td>
+                            </tr>
+                            <tr data-stock="150" data-min-stock="50" data-cost-per-unit="0.25" data-item-name="Rice" data-unit="Kg">
+                                <td>Rice</td>
+                                <td>Grains</td>
+                                <td class="current-stock">150 Kg</td>
+                                <td>50 Kg</td>
+                                <td><span class="badge badge-success">In Stock</span></td>
+                                <td><input type="number" min="0" class="input-qty qty-in" value="0"></td>
+                                <td><input type="number" min="0" class="input-qty qty-out" value="0"></td>
+                                <td><button class="btn btn-primary apply-stock-btn" style="padding: 5px 10px; font-size: 12px;" onclick="SchoolFeedingSystem.applyStockAdjustment(this)"><i class="fas fa-sync-alt"></i> Update</button></td>
+                            </tr>
+                            <tr data-stock="5" data-min-stock="50" data-cost-per-unit="2.50" data-item-name="Chicken Breast" data-unit="Kg">
+                                <td>Chicken Breast</td>
+                                <td>Meat</td>
+                                <td class="current-stock">5 Kg</td>
+                                <td>50 Kg</td>
+                                <td><span class="badge badge-danger">Out of Stock</span></td>
+                                <td><input type="number" min="0" class="input-qty qty-in" value="0"></td>
+                                <td><input type="number" min="0" class="input-qty qty-out" value="0"></td>
+                                <td><button class="btn btn-primary apply-stock-btn" style="padding: 5px 10px; font-size: 12px;" onclick="SchoolFeedingSystem.applyStockAdjustment(this)"><i class="fas fa-sync-alt"></i> Update</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="transactionsInvTab" class="table-container" style="display: none;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Item</th>
+                                <th>Type</th>
+                                <th>Quantity</th>
+                                <th>Total Cost</th>
+                                <th>Source/Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionLogBody">
+                            <tr>
+                                <td>10:30 AM</td>
+                                <td>Milk</td>
+                                <td><span class="badge badge-success">IN (Delivery)</span></td>
+                                <td>+50 Units</td>
+                                <td>$25.00</td>
+                                <td>Supplier ABC</td>
+                            </tr>
+                            <tr>
+                                <td>08:00 AM</td>
+                                <td>Rice</td>
+                                <td><span class="badge badge-danger">OUT (Usage)</span></td>
+                                <td>-10 Kg</td>
+                                <td>$2.50</td>
+                                <td>Daily Meal Prep</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="reorderInvTab" class="table-container" style="display: none;">
+                    <h3 style="color: var(--warning); margin-bottom: 15px;"><i class="fas fa-exclamation-circle"></i> Items Below Minimum Stock</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Category</th>
+                                <th>Current Stock</th>
+                                <th>Min Stock</th>
+                                <th>Quantity Needed</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reorderTable">
+                            </tbody>
+                    </table>
+                    <button class="btn btn-warning" style="margin-top: 15px;"><i class="fas fa-paper-plane"></i> Generate Reorder Proposal</button>
+                </div>
+            </div>
+            
+            <div id="reports" class="content-section">
+                <h2 class="section-title"><i class="fas fa-chart-bar"></i> Analytics & Reports</h2>
+                <div class="chart-container">
+                    <h3>Meals Served by Grade (Today)</h3>
+                    <canvas id="gradeConsumptionChart" height="250"></canvas>
+                </div>
+                <div class="table-container" style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px;">Daily Operations Summary</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                                <th>Target</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dailyReportBody">
+                            <tr><td>Total Students Served</td><td id="reportServed">856</td><td>85%</td><td><span class="badge badge-success">On Target</span></td></tr>
+                            <tr><td>Waste Percentage</td><td id="reportWaste">5%</td><td>< 8%</td><td><span class="badge badge-success">Good</span></td></tr>
+                            <tr><td>Total Meal Cost (Est.)</td><td id="reportCost">$1,284.00</td><td>-</td><td>-</td></tr>
+                            <tr><td>Low Stock Alerts</td><td id="reportAlerts">5</td><td>0</td><td><span class="badge badge-danger">High</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary"><i class="fas fa-download"></i> Download PDF Report</button>
+                    <button class="btn btn-success"><i class="fas fa-file-excel"></i> Export Data</button>
+                </div>
+            </div>
+            
+            <div id="parentPortal" class="content-section">
+                <h2 class="section-title"><i class="fas fa-users"></i> Parent Portal Management</h2>
+                <div class="feature-card">
+                    <h3><i class="fas fa-link"></i> Portal Access & Setup</h3>
+                    <p>Manage parent accounts, view enrollment status, and send meal notifications.</p>
+                    <button class="btn btn-info" style="margin-top: 15px;"><i class="fas fa-user-plus"></i> Invite New Parents</button>
+                </div>
+            </div>
+            
+            <div id="settings" class="content-section">
+                <h2 class="section-title"><i class="fas fa-cogs"></i> System Settings</h2>
+                <div class="feature-card">
+                    <h3><i class="fas fa-sliders-h"></i> Operational Parameters</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Default Meal Cost ($)</label>
+                            <input type="number" value="1.50">
+                        </div>
+                        <div class="form-group">
+                            <label>Low Stock Threshold (%)</label>
+                            <input type="number" value="60">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // --- Core Application Logic ---
+        const SchoolFeedingSystem = {
+            TOTAL_STUDENTS: 1247,
+            MEAL_CAPACITY: 1200,
+            BASE_COST_PER_MEAL: 1.50,
+            
+            // Initial Data
+            state: {
+                students: [
+                    { id: 'S001', name: 'John Smith', grade: 5, class: '5A', restrictions: ['Peanut Allergy'], plan: 'Standard', status: 'Active' },
+                    { id: 'S002', name: 'Sarah Johnson', grade: 4, class: '4B', restrictions: ['None'], plan: 'Special', status: 'Active' },
+                    { id: 'S003', name: 'Alice Brown', grade: 3, class: '3C', restrictions: ['Vegetarian'], plan: 'Special', status: 'Active' },
+                ],
+                inventory: [
+                    { name: 'Milk', category: 'Dairy', stock: 25, minStock: 30, cost: 0.50, unit: 'Units' },
+                    { name: 'Rice', category: 'Grains', stock: 150, minStock: 50, cost: 0.25, unit: 'Kg' },
+                    { name: 'Chicken Breast', category: 'Meat', stock: 5, minStock: 50, cost: 2.50, unit: 'Kg' },
+                ],
+                orders: [
+                    { id: 'ORD001', student: 'John Smith', gradeClass: '5 / 5A', meal: 'Standard', servedTime: '12:35 PM', status: 'served' },
+                    { id: 'ORD002', student: 'Sarah Johnson', gradeClass: '4 / 4B', meal: 'Special Diet', servedTime: '12:40 PM', status: 'served' },
+                    { id: 'ORD003', student: 'Alice Brown', gradeClass: '3 / 3C', meal: 'Special Diet', servedTime: '-', status: 'pending' },
+                ],
+                transactions: [
+                    { time: '10:30 AM', item: 'Milk', type: 'IN', qty: 50, cost: 25.00, reason: 'Supplier ABC', unit: 'Units' },
+                    { time: '08:00 AM', item: 'Rice', type: 'OUT', qty: 10, cost: 2.50, reason: 'Daily Meal Prep', unit: 'Kg' },
+                ],
+                dailyMetrics: {
+                    mealsServed: 856,
+                    totalOrders: 1000,
+                    wastePercentage: 5,
+                    participationRate: 94, // based on dummy calc below
+                    lowStockCount: 3,
+                }
+            },
+
+            // --- UI & Utility Functions ---
+            showNotification(message, type = 'success') {
+                const notif = document.getElementById('notification');
+                notif.textContent = message;
+                notif.className = `notification ${type}`;
+                notif.style.display = 'block';
+                setTimeout(() => {
+                    notif.style.display = 'none';
+                }, 3000);
+            },
+
+            openModal(modalId) {
+                document.getElementById(modalId).style.display = 'block';
+            },
+
+            closeModal(modalId) {
+                document.getElementById(modalId).style.display = 'none';
+            },
+
+            quickAction(action) {
+                this.showNotification(`Quick Action: ${action} initiated.`, 'info');
+                // Placeholder for actual logic (e.g., navigating to a section)
+                if (action === 'newMenu') this.openModal('menuModal');
+                if (action === 'inventoryCheck') document.querySelector('[data-target="inventory"]').click();
+            },
+
+            // --- Render Functions ---
+            renderDashboard() {
+                const { dailyMetrics, inventory } = this.state;
+                
+                // 1. Calculate Metrics
+                const servedCount = this.state.orders.filter(o => o.status === 'served').length;
+                const lowStockCount = inventory.filter(item => item.stock < item.minStock).length;
+                const participation = Math.round((servedCount / this.TOTAL_STUDENTS) * 100);
+
+                // 2. Update KPI Stat Cards
+                document.getElementById('totalStudents').textContent = this.TOTAL_STUDENTS.toLocaleString();
+                document.getElementById('mealsToday').textContent = servedCount.toLocaleString();
+                document.getElementById('mealsServedNote').textContent = `${Math.round((servedCount / this.MEAL_CAPACITY) * 100)}% of ${this.MEAL_CAPACITY} capacity`;
+                
+                document.getElementById('participationRate').textContent = `${participation}%`;
+                document.getElementById('progressParticipation').style.width = `${participation}%`;
+
+                document.getElementById('invLowStockAlertCard').textContent = lowStockCount;
+                document.getElementById('progressLowStock').style.width = `${Math.min((lowStockCount / inventory.length) * 100, 100)}%`;
+                
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+
+                // 3. Render Alerts (Critical Alerts Box)
+                this.renderDashboardAlerts(lowStockCount);
+
+                // 4. Update Charts
+                this.updateCharts(servedCount, this.state.orders.length - servedCount);
+            },
+            
+            renderDashboardAlerts(lowStockCount) {
+                const recentActivity = document.getElementById('recentActivity');
+                recentActivity.innerHTML = ''; // Clear existing alerts for fresh render
+
+                const lowStockItems = this.state.inventory.filter(item => item.stock < item.minStock);
+                
+                // Add Low Stock Alerts
+                if (lowStockCount > 0) {
+                    lowStockItems.forEach(item => {
+                        const status = item.stock <= 0 ? 'Out of Stock' : 'Low Stock';
+                        recentActivity.insertAdjacentHTML('beforeend', `
+                            <div class="alert-item" style="border-left-color: ${item.stock <= 0 ? var(--danger) : var(--warning)}">
+                                <div>
+                                    <strong>${status}: ${item.name} (${item.stock} ${item.unit})</strong>
+                                    <div style="color: #666; font-size: 0.9em;">Below min stock of ${item.minStock} ${item.unit}.</div>
+                                </div>
+                                <span class="badge badge-${item.stock <= 0 ? 'danger' : 'warning'}">Action</span>
+                            </div>
+                        `);
+                    });
+                }
+                
+                // Add Pending Orders Alert
+                const pendingOrders = this.state.orders.filter(o => o.status === 'pending').length;
+                if (pendingOrders > 0) {
+                     recentActivity.insertAdjacentHTML('beforeend', `
+                        <div class="alert-item" style="border-left-color: var(--danger)">
+                            <div>
+                                <strong>🚨 ${pendingOrders} Meal Orders Pending Service</strong>
+                                <div style="color: #666; font-size: 0.9em;">Needs immediate attention in Order System.</div>
+                            </div>
+                            <span class="badge badge-danger">Urgent</span>
+                        </div>
+                    `);
+                }
+
+                // Add Success/Activity Log
+                recentActivity.insertAdjacentHTML('beforeend', `
+                    <div class="alert-item" style="border-left-color: var(--success)">
+                        <div>
+                            <strong>✅ Daily Service complete (${this.state.dailyMetrics.mealsServed} meals served)</strong>
+                            <div style="color: #666; font-size: 0.9em;">Today, 1:05 PM</div>
+                        </div>
+                        <span class="badge badge-success">Log</span>
+                    </div>
+                `);
+
+                // If no critical alerts, show a clear message
+                if (lowStockCount === 0 && pendingOrders === 0) {
+                    recentActivity.innerHTML = `
+                        <div class="alert-item" style="border-left-color: var(--success); text-align: center; display: block;">
+                            <strong style="color: var(--success);"><i class="fas fa-check-circle"></i> No Critical Alerts Detected. System is stable.</strong>
+                        </div>
+                    `;
+                }
+            },
+            
+            renderStudents(filter = 'allStudents', search = '') {
+                const tableBody = document.getElementById('studentsTable');
+                let filteredStudents = this.state.students;
+
+                // Apply filter (simplified logic for demo)
+                if (filter === 'specialDiet') {
+                    filteredStudents = filteredStudents.filter(s => s.restrictions.some(r => r !== 'None'));
+                } else if (filter === 'newEnrollments') {
+                    filteredStudents = filteredStudents.slice(0, 1); 
+                }
+
+                // Apply search (simplified logic for demo)
+                if (search) {
+                    const searchTerm = search.toLowerCase();
+                    filteredStudents = filteredStudents.filter(s => 
+                        s.name.toLowerCase().includes(searchTerm) ||
+                        s.grade.toString().includes(searchTerm)
+                    );
+                }
+
+                tableBody.innerHTML = filteredStudents.map(student => `
+                    <tr>
+                        <td>${student.id}</td>
+                        <td>${student.name}</td>
+                        <td>${student.grade}</td>
+                        <td>${student.class}</td>
+                        <td>${student.restrictions.map(r => `<span class="badge ${r === 'None' ? 'badge-success' : 'badge-warning'}">${r}</span>`).join(' ')}</td>
+                        <td>${student.plan}</td>
+                        <td><span class="badge badge-success">${student.status}</span></td>
+                        <td>
+                            <button class="btn btn-info" style="padding: 5px 10px; font-size: 12px;"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            },
+
+            switchTab(target) {
+                // Student Management Tab Switching
+                document.querySelectorAll('#students .tab').forEach(t => t.classList.remove('active'));
+                document.querySelector(`#students .tab[onclick*='${target}']`).classList.add('active');
+                this.renderStudents(target);
+            },
+            
+            switchInvTab(target) {
+                // Inventory Tab Switching
+                document.querySelectorAll('#inventory .tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('#inventory .table-container').forEach(c => c.style.display = 'none');
+                
+                document.querySelector(`#inventory .tab[onclick*='${target}']`).classList.add('active');
+                document.getElementById(`${target}InvTab`).style.display = 'block';
+
+                if (target === 'reorder') {
+                    this.renderReorderList();
+                }
+            },
+
+            // --- Order Actions ---
+            markOrderServed(button, orderId) {
+                const order = this.state.orders.find(o => o.id === orderId);
+                if (order && order.status === 'pending') {
+                    order.status = 'served';
+                    order.servedTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    this.state.dailyMetrics.mealsServed++;
+                    
+                    this.showNotification(`Order ${orderId} marked as served.`, 'success');
+                    this.renderOrders();
+                    this.renderDashboard(); // Re-render dashboard to update served counts
+                }
+            },
+
+            // --- Inventory Actions ---
+            applyStockAdjustment(button) {
+                const row = button.closest('tr');
+                const qtyIn = parseInt(row.querySelector('.qty-in').value) || 0;
+                const qtyOut = parseInt(row.querySelector('.qty-out').value) || 0;
+
+                if (qtyIn === 0 && qtyOut === 0) {
+                    this.showNotification('No change entered.', 'warning');
+                    return;
+                }
+
+                const itemName = row.dataset.itemName;
+                const item = this.state.inventory.find(i => i.name === itemName);
+
+                let newStock = item.stock + qtyIn - qtyOut;
+
+                if (newStock < 0) {
+                    this.showNotification('Error: Stock adjustment results in negative inventory.', 'error');
+                    return;
+                }
+
+                // Update State
+                item.stock = newStock;
+                
+                // Log Transactions (simplified)
+                const now = new Date();
+                const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                if (qtyIn > 0) {
+                    this.state.transactions.unshift({ time: time, item: itemName, type: 'IN', qty: qtyIn, cost: qtyIn * item.cost, reason: 'New Delivery/Stock', unit: item.unit });
+                }
+                if (qtyOut > 0) {
+                    this.state.transactions.unshift({ time: time, item: itemName, type: 'OUT', qty: qtyOut, cost: qtyOut * item.cost, reason: 'Daily Prep/Waste', unit: item.unit });
+                }
+                
+                this.showNotification(`${itemName} stock updated. New Stock: ${newStock} ${item.unit}`, 'success');
+
+                // Re-render affected components
+                this.renderInventory();
+                this.renderDashboard();
+                this.renderReports();
+            },
+            
+            renderInventory() {
+                const inventoryTable = document.getElementById('inventoryTable');
+                let lowStockCount = this.state.inventory.filter(item => item.stock < item.minStock).length;
+                
+                // 1. Render Inventory Table (relying on initial HTML structure for simplicity)
+                // In a full app, this would dynamically generate all rows based on this.state.inventory.
+                
+                // 2. Update Inventory Stat Cards & Alerts
+                document.getElementById('invTotalItems').textContent = this.state.inventory.length;
+                document.getElementById('invLowStock').textContent = lowStockCount;
+                document.getElementById('invReorderNeeded').textContent = this.state.inventory.filter(item => item.stock < item.minStock).length;
+
+                this.renderDashboard(); // Update dashboard for stock alerts
+            },
+            
+            renderReorderList() {
+                const reorderTable = document.getElementById('reorderTable');
+                const reorderItems = this.state.inventory.filter(item => item.stock < item.minStock);
+                
+                reorderTable.innerHTML = reorderItems.map(item => {
+                    const needed = item.minStock - item.stock;
+                    return `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>${item.category}</td>
+                            <td>${item.stock} ${item.unit}</td>
+                            <td>${item.minStock} ${item.unit}</td>
+                            <td>${needed} ${item.unit}</td>
+                            <td><button class="btn btn-info" style="padding: 5px 10px; font-size: 12px;"><i class="fas fa-plus"></i> Order ${needed}</button></td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                if (reorderItems.length === 0) {
+                    reorderTable.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--success);">🎉 All items are above minimum stock levels!</td></tr>';
+                }
+            },
+            
+            renderOrders() {
+                // Render function for Order System table
+                const tableBody = document.getElementById('ordersTable');
+                const servedCount = this.state.orders.filter(o => o.status === 'served').length;
+                const pendingCount = this.state.orders.length - servedCount;
+                
+                document.getElementById('ordersTotal').textContent = this.state.orders.length.toLocaleString();
+                document.getElementById('ordersServed').textContent = servedCount.toLocaleString();
+                document.getElementById('ordersPending').textContent = pendingCount.toLocaleString();
+            },
+
+            renderReports() {
+                const served = this.state.orders.filter(o => o.status === 'served').length;
+                const waste = this.state.dailyMetrics.wastePercentage;
+                const cost = (served * this.BASE_COST_PER_MEAL).toFixed(2);
+                const lowStockCount = this.state.inventory.filter(item => item.stock < item.minStock).length;
+
+                document.getElementById('reportServed').textContent = served.toLocaleString();
+                document.getElementById('reportWaste').textContent = `${waste}%`;
+                document.getElementById('reportCost').textContent = `$${cost}`;
+                document.getElementById('reportAlerts').textContent = lowStockCount;
+                
+                const alertBadge = document.querySelector('#reportAlerts').nextElementSibling;
+                alertBadge.className = `badge badge-${lowStockCount > 3 ? 'danger' : (lowStockCount > 0 ? 'warning' : 'success')}`;
+                alertBadge.textContent = lowStockCount > 3 ? 'Critical' : (lowStockCount > 0 ? 'High' : 'Good');
+            },
+
+            // --- Charting ---
+            updateCharts(mealsServed, mealsPending) {
+                // --- Dashboard Charts ---
+                
+                // Weekly Consumption Chart (Bar Chart)
+                const consumptionCtx = document.getElementById('consumptionChart').getContext('2d');
+                new Chart(consumptionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+                        datasets: [{
+                            label: 'Meals Served',
+                            data: [150, 180, mealsServed, 190, 170], // Dynamic "Wed" data
+                            backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            borderWidth: 1,
+                            borderRadius: 5,
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                });
+
+                // Meal Distribution Chart (Doughnut Chart)
+                const distributionCtx = document.getElementById('mealDistributionChart').getContext('2d');
+                new Chart(distributionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Standard', 'Special Diet', 'Premium'],
+                        datasets: [{
+                            label: 'Meal Distribution',
+                            data: [mealsServed * 0.7, mealsServed * 0.25, mealsServed * 0.05],
+                            backgroundColor: ['#27ae60', '#f39c12', '#3498db'],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, title: { display: true, text: 'Meal Plan Breakdown' } } }
+                });
+
+                // --- Reports Chart ---
+                const gradeConsumptionCtx = document.getElementById('gradeConsumptionChart').getContext('2d');
+                new Chart(gradeConsumptionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6'],
+                        datasets: [{
+                            label: 'Meals Served Today',
+                            data: [120, 150, 140, 180, 166, 100],
+                            backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                            borderColor: 'rgba(155, 89, 182, 1)',
+                            borderWidth: 1,
+                            borderRadius: 5,
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                });
+            },
+
+            // --- Initialization ---
+            init() {
+                // Set initial data and render all components
+                this.renderOrders();
+                this.renderInventory();
+                this.renderStudents();
+                this.renderReports();
+                this.renderDashboard(); // Always render last to use updated data from other sections
+
+                // Attach form submission listeners
+                document.getElementById('studentForm').addEventListener('submit', this.submitStudentForm.bind(this));
+                
+                // Navigation Link Handler
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
+                        document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+                        
+                        this.classList.add('active');
+                        const targetSection = document.getElementById(this.dataset.target);
+                        if (targetSection) targetSection.classList.add('active');
+                        
+                        // Re-render all major components on tab switch
+                        SchoolFeedingSystem.renderDashboard(); 
+                        SchoolFeedingSystem.renderStudents();
+                        SchoolFeedingSystem.renderOrders();
+                        SchoolFeedingSystem.renderInventory();
+                        SchoolFeedingSystem.renderReports();
+                    });
+                });
+            },
+            
+            submitStudentForm(e) {
+                e.preventDefault();
+                const form = document.getElementById('studentForm');
+                
+                const newStudent = {
+                    id: document.getElementById('studentId').value,
+                    name: document.getElementById('studentName').value,
+                    grade: parseInt(document.getElementById('studentGrade').value),
+                    class: document.getElementById('studentClass').value,
+                    restrictions: Array.from(document.getElementById('dietaryRestrictions').selectedOptions).map(option => option.value),
+                    plan: document.getElementById('mealPlan').value,
+                    status: 'Active',
+                };
+
+                this.state.students.push(newStudent);
+                this.TOTAL_STUDENTS = this.state.students.length + 1247 - 3; // Recalculate based on dummy total
+                this.showNotification(`Student ${newStudent.name} added successfully!`, 'success');
+                this.closeModal('studentModal');
+                form.reset();
+                this.renderStudents();
+                this.renderDashboard(); 
+            },
+            
+            searchStudents() {
+                const search = document.getElementById('searchStudents').value;
+                document.querySelectorAll('#students .tab').forEach(t => t.classList.remove('active'));
+                document.querySelector(`#students .tab[onclick*='allStudents']`).classList.add('active');
+                this.renderStudents('allStudents', search);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            SchoolFeedingSystem.init();
+        });
+    </script>
+</body>
+</html>
